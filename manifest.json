@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "HUSC Credit Registration Helper",
+  "version": "1.0.0",
+  "description": "Tra cứu lớp học phần và mở trang đăng ký HUSC trong bảng trợ lý nổi.",
+  "permissions": ["activeTab"],
+  "host_permissions": ["https://student.husc.edu.vn/*"],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "action": {
+    "default_title": "Bật/tắt HUSC Helper"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://student.husc.edu.vn/*"],
+      "js": [
+        "src/utils/helpers.js",
+        "src/services/course.service.js",
+        "src/components/course-card.js",
+        "src/content/content.js"
+      ],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
