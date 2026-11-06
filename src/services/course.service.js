@@ -1,3 +1,4 @@
+
 (() => {
   const Utils = globalThis.HUSCHelperUtils;
 
@@ -17,7 +18,9 @@
       const response = await fetch(url.href, {
         method: "GET",
         credentials: "include",
-        headers: { "X-Requested-With": "XMLHttpRequest" }
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
       });
 
       if (!response.ok) {
@@ -35,14 +38,23 @@
       return rows.map((row) => {
         const cells = [...row.querySelectorAll("td")];
         const small = row.querySelector("small");
+
         const classCode = Utils.normalizeText(
-          small?.textContent || row.querySelector("a[href*='/Course/Details/']")?.textContent
+          small?.textContent ||
+          row.querySelector("a[href*='/Course/Details/']")?.textContent
         );
 
-        if (!classCode || cells.length === 0) return null;
+        if (!classCode || cells.length === 0) {
+          return null;
+        }
 
-        const values = cells.map((cell) => Utils.normalizeText(cell.textContent));
-        const detailLink = row.querySelector("a[href*='/Course/Details/']");
+        const values = cells.map((cell) =>
+          Utils.normalizeText(cell.textContent)
+        );
+
+        const detailLink = row.querySelector(
+          "a[href*='/Course/Details/']"
+        );
 
         return {
           code: classCode,
@@ -52,9 +64,16 @@
           room: values[3] || "",
           note: values[4] || "",
           quota: values[5] || "",
+
           detailUrl: detailLink
-            ? new URL(detailLink.getAttribute("href"), window.location.origin).href
-            : new URL(`/Course/Details/${encodeURIComponent(classCode)}/`, window.location.origin).href
+            ? new URL(
+                detailLink.getAttribute("href"),
+                window.location.origin
+              ).href
+            : new URL(
+                `/Course/Details/${encodeURIComponent(classCode)}/`,
+                window.location.origin
+              ).href
         };
       }).filter(Boolean);
     }
@@ -65,21 +84,40 @@
         window.location.origin
       );
 
-      const response = await fetch(url.href, { credentials: "include" });
-      if (!response.ok) throw new Error(`Không tải được chi tiết lớp (HTTP ${response.status}).`);
+      const response = await fetch(url.href, {
+        credentials: "include"
+      });
 
-      const doc = new DOMParser().parseFromString(await response.text(), "text/html");
+      if (!response.ok) {
+        throw new Error(
+          `Không tải được chi tiết lớp (HTTP ${response.status}).`
+        );
+      }
+
+      const doc = new DOMParser().parseFromString(
+        await response.text(),
+        "text/html"
+      );
+
       const result = {};
 
       doc.querySelectorAll("label.control-label").forEach((label) => {
-        const key = Utils.normalizeText(label.textContent).replace(/[:：]$/, "");
+        const key = Utils.normalizeText(label.textContent)
+          .replace(/[:：]$/, "");
+
         const valueNode = label.parentElement?.querySelector(
           "input, textarea, select, .form-control, p, span"
         );
+
         const value = Utils.normalizeText(
-          valueNode?.value ?? valueNode?.textContent ?? label.parentElement?.textContent
+          valueNode?.value ??
+          valueNode?.textContent ??
+          label.parentElement?.textContent
         );
-        if (key && value) result[key] = value;
+
+        if (key && value) {
+          result[key] = value;
+        }
       });
 
       return result;
